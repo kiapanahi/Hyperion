@@ -5,13 +5,17 @@
         <VersionSuffix>dev</VersionSuffix>
 
         <AssemblyName>hyperion</AssemblyName>
+
         <LangVersion>latest</LangVersion>
         <AnalysisLevel>latest-all</AnalysisLevel>
         <AnalysisMode>all</AnalysisMode>
 
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
-    
+
     <PropertyGroup>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     </PropertyGroup>
