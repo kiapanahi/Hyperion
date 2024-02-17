@@ -22,6 +22,10 @@ internal sealed class PingInstrument : IMonitoringInstrument, IDisposable
         throw new NotImplementedException();
     }
 
+    /// <summary>
+    /// Sends ICMP echo requests and streams the ICMP reply responses back as an asynchronous stream.
+    /// </summary>
+    /// <returns><see cref="IAsyncEnumerable{ProbingResponse}"/></returns>
     public IAsyncEnumerable<ProbingResponse> Probe()
     {
         throw new NotImplementedException();
