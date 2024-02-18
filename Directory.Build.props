@@ -4,16 +4,13 @@
         <Version>0.1.0</Version>
         <VersionSuffix>dev</VersionSuffix>
 
-        <AssemblyName>hyperion</AssemblyName>
-
         <LangVersion>latest</LangVersion>
         <AnalysisLevel>latest-all</AnalysisLevel>
         <AnalysisMode>all</AnalysisMode>
-
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
 
     <PropertyGroup>
