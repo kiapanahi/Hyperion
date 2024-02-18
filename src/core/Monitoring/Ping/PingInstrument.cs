@@ -1,45 +1,47 @@
-﻿using SystemPing = System.Net.NetworkInformation.Ping;
+﻿using System.Net.NetworkInformation;
 
-namespace Core.Monitoring.Ping;
-internal sealed class PingInstrument : IMonitoringInstrument, IDisposable
+using SystemPing = System.Net.NetworkInformation.Ping;
+
+namespace Hyperion.Core.Monitoring.Ping;
+public sealed class PingInstrument(PingInstrumentOptions options, CancellationToken? cancellationToken = null) : IMonitoringInstrument
 {
-    private readonly SystemPing _pingSender;
-    private readonly CancellationTokenSource _cancellationTokenSource;
-    private readonly PingInstrumentOptions _options;
+    private readonly PingOptions _pingOptions = new();
+    private readonly SystemPing _pingSender = new();
+    private readonly PingInstrumentOptions _options = options;
+    private readonly CancellationToken _cancellationToken = cancellationToken ?? CancellationToken.None;
     private bool _disposedValue;
-
-    public PingInstrument(PingInstrumentOptions options, CancellationToken cancellationToken)
-    {
-        _pingSender = new SystemPing();
-        _pingSender.PingCompleted += PingSender_PingCompleted;
-
-        _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        _options = options;
-    }
-
-    private void PingSender_PingCompleted(object sender, System.Net.NetworkInformation.PingCompletedEventArgs e)
-    {
-        throw new NotImplementedException();
-    }
 
     /// <summary>
     /// Sends ICMP echo requests and streams the ICMP reply responses back as an asynchronous stream.
     /// </summary>
     /// <returns><see cref="IAsyncEnumerable{ProbingResponse}"/></returns>
-    public IAsyncEnumerable<ProbingResponse> Probe()
+    public async IAsyncEnumerable<ProbingResponse> Start()
     {
-        throw new NotImplementedException();
+        PingReply? reply = null;
+        bool canceled = false;
+        try
+        {
+            reply = await _pingSender
+            .SendPingAsync(_options.IPAddress, _options.Timeout, options: _pingOptions, cancellationToken: _cancellationToken)
+            .ConfigureAwait(false);
+        }
+        catch (Exception e) when (e is TaskCanceledException or OperationCanceledException)
+        {
+            canceled = true;
+        }
+
+        yield return canceled
+            ? throw new OperationCanceledException("Canceled")
+            : new ProbingResponse(TimeSpan.FromMilliseconds(reply!.RoundtripTime));
     }
 
     private void Dispose(bool disposing)
     {
-        _cancellationTokenSource?.Cancel();
         if (!_disposedValue)
         {
             if (disposing)
             {
                 _pingSender?.Dispose();
-                _cancellationTokenSource?.Dispose();
             }
 
             // TODO: free unmanaged resources (unmanaged objects) and override finalizer

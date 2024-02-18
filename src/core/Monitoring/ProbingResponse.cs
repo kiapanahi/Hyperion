@@ -1,6 +1,2 @@
-﻿namespace Core.Monitoring;
-internal readonly struct ProbingResponse
-{
-
-    TimeSpan Duration { get; init; }
-}
+﻿namespace Hyperion.Core.Monitoring;
+public readonly record struct ProbingResponse(TimeSpan Duration);

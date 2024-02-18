@@ -1,12 +1,10 @@
 ﻿using System.Net;
 
-namespace Core.Monitoring.Ping;
-internal sealed class PingInstrumentOptions
+namespace Hyperion.Core.Monitoring.Ping;
+public sealed class PingInstrumentOptions(IPAddress ipAddress, TimeSpan? timeout = null)
 {
-    public PingInstrumentOptions(IPAddress ipAddress)
-    {
-        IPAddress = ipAddress;
-    }
+    private static readonly TimeSpan ThirtySeconds = TimeSpan.FromSeconds(30);
 
-    public IPAddress IPAddress { get; }
+    public IPAddress IPAddress { get; } = ipAddress;
+    public TimeSpan Timeout { get; } = timeout ?? ThirtySeconds;
 }

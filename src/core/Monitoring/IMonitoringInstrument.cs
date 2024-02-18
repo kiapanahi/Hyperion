@@ -1,5 +1,5 @@
-﻿namespace Core.Monitoring;
-internal interface IMonitoringInstrument
+﻿namespace Hyperion.Core.Monitoring;
+internal interface IMonitoringInstrument : IDisposable
 {
-    IAsyncEnumerable<ProbingResponse> Probe();
+    IAsyncEnumerable<ProbingResponse> Start();
 }
