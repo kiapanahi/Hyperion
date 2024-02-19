@@ -7,10 +7,11 @@ namespace Hyperion.Core.Tests.Ping;
 
 public class PingInstrumentTests
 {
+    private const string IpAddress = "127.0.0.1";
     [Fact]
     public void InstantiatesPingInstrument()
     {
-        var options = new PingInstrumentOptions(IPAddress.Parse("8.8.8.8"));
+        var options = new PingInstrumentOptions(IPAddress.Parse(IpAddress));
         using var cts = new CancellationTokenSource();
 
         using IMonitoringInstrument sut = new PingInstrument(options, cts.Token);
@@ -21,7 +22,7 @@ public class PingInstrumentTests
     [Fact]
     public void InstantiatesPingInstrumentWithNoneCancellation()
     {
-        var options = new PingInstrumentOptions(IPAddress.Parse("8.8.8.8"));
+        var options = new PingInstrumentOptions(IPAddress.Parse(IpAddress));
         using var cts = new CancellationTokenSource();
 
         using IMonitoringInstrument sut = new PingInstrument(options, CancellationToken.None);
@@ -29,23 +30,16 @@ public class PingInstrumentTests
         sut.Should().NotBeNull();
     }
 
-    [Fact]
-    public void InstantiatesPingInstrumentWithNullCancellation()
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(5)]
+    public async Task StartsPing(int durationInSeconds)
     {
-        var options = new PingInstrumentOptions(IPAddress.Parse("8.8.8.8"));
-        using var cts = new CancellationTokenSource();
-
-        using IMonitoringInstrument sut = new PingInstrument(options);
-
-        sut.Should().NotBeNull();
-    }
-
-    [Fact]
-    public async Task StartsPing()
-    {
-        var options = new PingInstrumentOptions(IPAddress.Parse("8.8.8.8"));
+        var options = new PingInstrumentOptions(IPAddress.Parse(IpAddress));
 
         using var cts = new CancellationTokenSource();
+        cts.CancelAfter(TimeSpan.FromSeconds(durationInSeconds));
         cts.IsCancellationRequested.Should().BeFalse();
 
         using PingInstrument sut = new(options, cts.Token);
@@ -55,15 +49,15 @@ public class PingInstrumentTests
             response.Duration.Should().BeLessThan(TimeSpan.FromSeconds(1));
         }
 
-        cts.IsCancellationRequested.Should().BeFalse();
+        cts.IsCancellationRequested.Should().BeTrue();
     }
 
     [Fact]
     public async Task CanceledPing()
     {
-        var options = new PingInstrumentOptions(IPAddress.Parse("8.8.8.8"));
+        var options = new PingInstrumentOptions(IPAddress.Parse(IpAddress));
 
-        using var cts = new CancellationTokenSource(100_0000);
+        using var cts = new CancellationTokenSource();
         cts.IsCancellationRequested.Should().BeFalse();
 
         await cts.CancelAsync();
@@ -74,7 +68,7 @@ public class PingInstrumentTests
         sut.Start()
             .Enumerating(r => r.ToBlockingEnumerable())
             .Should()
-            .ThrowExactly<OperationCanceledException>();
+            .NotThrow();
 
         cts.IsCancellationRequested.Should().BeTrue();
 

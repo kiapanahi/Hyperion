@@ -3,12 +3,12 @@
 using SystemPing = System.Net.NetworkInformation.Ping;
 
 namespace Hyperion.Core.Monitoring.Ping;
-public sealed class PingInstrument(PingInstrumentOptions options, CancellationToken? cancellationToken = null) : IMonitoringInstrument
+public sealed class PingInstrument(PingInstrumentOptions options, CancellationToken cancellationToken) : IMonitoringInstrument
 {
     private readonly PingOptions _pingOptions = new();
     private readonly SystemPing _pingSender = new();
     private readonly PingInstrumentOptions _options = options;
-    private readonly CancellationToken _cancellationToken = cancellationToken ?? CancellationToken.None;
+    private readonly CancellationToken _cancellationToken = cancellationToken;
     private bool _disposedValue;
 
     /// <summary>
@@ -17,22 +17,22 @@ public sealed class PingInstrument(PingInstrumentOptions options, CancellationTo
     /// <returns><see cref="IAsyncEnumerable{ProbingResponse}"/></returns>
     public async IAsyncEnumerable<ProbingResponse> Start()
     {
-        PingReply? reply = null;
-        bool canceled = false;
-        try
+        while (true)
         {
-            reply = await _pingSender
-            .SendPingAsync(_options.IPAddress, _options.Timeout, options: _pingOptions, cancellationToken: _cancellationToken)
-            .ConfigureAwait(false);
-        }
-        catch (Exception e) when (e is TaskCanceledException or OperationCanceledException)
-        {
-            canceled = true;
-        }
+            PingReply reply;
+            try
+            {
+                reply = await _pingSender
+                .SendPingAsync(_options.IPAddress, _options.Timeout, options: _pingOptions, cancellationToken: _cancellationToken)
+                .ConfigureAwait(false);
+            }
+            catch (Exception e) when (e is TaskCanceledException or OperationCanceledException)
+            {
+                break;
+            }
 
-        yield return canceled
-            ? throw new OperationCanceledException("Canceled")
-            : new ProbingResponse(TimeSpan.FromMilliseconds(reply!.RoundtripTime));
+            yield return new ProbingResponse(TimeSpan.FromMilliseconds(reply!.RoundtripTime));
+        }
     }
 
     private void Dispose(bool disposing)
