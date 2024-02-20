@@ -13,4 +13,8 @@
       <PackageReference Include="Spectre.Console.Cli" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\core\Core.csproj" />
+    </ItemGroup>
+
 </Project>
