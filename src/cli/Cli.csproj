@@ -2,6 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
+    <NoWarn>$(NoWarn); CA2007</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
