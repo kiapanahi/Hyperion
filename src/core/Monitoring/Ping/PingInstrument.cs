@@ -14,7 +14,7 @@ public sealed class PingInstrument(PingInstrumentOptions options, CancellationTo
     /// <summary>
     /// Sends ICMP echo requests and streams the ICMP reply responses back as an asynchronous stream.
     /// </summary>
-    /// <returns><see cref="IAsyncEnumerable{ProbingResponse}"/></returns>
+    /// <returns><see cref="IAsyncEnumerable{PingResponse}"/></returns>
     public async IAsyncEnumerable<ProbingResponse> Start()
     {
         while (true)
@@ -30,8 +30,11 @@ public sealed class PingInstrument(PingInstrumentOptions options, CancellationTo
             {
                 break;
             }
-
-            yield return new ProbingResponse(TimeSpan.FromMilliseconds(reply!.RoundtripTime));
+            yield return new PingResponse(
+                duration: TimeSpan.FromMilliseconds(reply!.RoundtripTime),
+                status: reply.Status.ToString(),
+                destination: _options.IPAddress.ToString(),
+                ttl: reply.Options!.Ttl);
         }
     }
 

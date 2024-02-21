@@ -1,2 +1,7 @@
 ﻿namespace Hyperion.Core.Monitoring;
-public readonly record struct ProbingResponse(TimeSpan Duration);
+public abstract class ProbingResponse(TimeSpan duration)
+{
+    public TimeSpan Duration { get; } = duration;
+
+    public abstract string Report();
+}
