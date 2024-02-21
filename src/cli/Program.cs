@@ -2,12 +2,7 @@
 
 using Hyperion.Core.Monitoring.Ping;
 
-var t = new FigletText("Hyperion")
-{
-    Justification = Justify.Center,
-    Color = Color.Cyan3
-};
-AnsiConsole.Write(t);
+PrintHeader();
 
 var table = new Table()
 {
@@ -35,3 +30,10 @@ await AnsiConsole.Live(table)
             ctx.Refresh();
         }
     });
+
+static void PrintHeader()
+{
+    AnsiConsole.Write(new FigletText("Hyperion")
+        .Justify(Justify.Left)
+        .Color(Color.Cyan3));
+}
