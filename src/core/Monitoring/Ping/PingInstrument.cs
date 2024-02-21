@@ -3,7 +3,7 @@
 using SystemPing = System.Net.NetworkInformation.Ping;
 
 namespace Hyperion.Core.Monitoring.Ping;
-public sealed class PingInstrument(PingInstrumentOptions options, CancellationToken cancellationToken) : IMonitoringInstrument
+public sealed partial class PingInstrument(PingInstrumentOptions options, CancellationToken cancellationToken) : IMonitoringInstrument
 {
     private static readonly TimeSpan Delay = TimeSpan.FromSeconds(1);
     private readonly PingOptions _pingOptions = new();
@@ -28,7 +28,7 @@ public sealed class PingInstrument(PingInstrumentOptions options, CancellationTo
                                                         timeout: _options.Timeout,
                                                         options: _pingOptions,
                                                         cancellationToken: _cancellationToken)
-                .ConfigureAwait(false);
+                    .ConfigureAwait(false);
             }
             catch (Exception e) when (e is TaskCanceledException or OperationCanceledException)
             {
@@ -42,21 +42,15 @@ public sealed class PingInstrument(PingInstrumentOptions options, CancellationTo
         }
 
         static async Task<bool> AwaitNextTick(PeriodicTimer timer, CancellationToken cancellationToken)
-    {
-            try
         {
+            try
+            {
                 return await timer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
                 return false;
+            }
         }
-    }
-
-    public void Dispose()
-    {
-        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
     }
 }
