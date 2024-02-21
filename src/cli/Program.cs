@@ -5,11 +5,10 @@ using Hyperion.Core.Monitoring.Ping;
 PrintHeader();
 
 var table = new Table()
-{
-    Border = TableBorder.DoubleEdge,
-};
-table.Centered()
-    .AddColumn("Ping", c => c.Centered());
+    .Border(TableBorder.DoubleEdge)
+    .BorderColor(Color.Yellow)
+    .LeftAligned()
+    .AddColumn("Ping");
 
 using var cts = new CancellationTokenSource();
 
