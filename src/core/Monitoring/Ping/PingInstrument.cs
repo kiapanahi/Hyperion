@@ -5,6 +5,7 @@ using SystemPing = System.Net.NetworkInformation.Ping;
 namespace Hyperion.Core.Monitoring.Ping;
 public sealed class PingInstrument(PingInstrumentOptions options, CancellationToken cancellationToken) : IMonitoringInstrument
 {
+    private static readonly TimeSpan Delay = TimeSpan.FromSeconds(1);
     private readonly PingOptions _pingOptions = new();
     private readonly SystemPing _pingSender = new();
     private readonly PingInstrumentOptions _options = options;
@@ -17,13 +18,16 @@ public sealed class PingInstrument(PingInstrumentOptions options, CancellationTo
     /// <returns><see cref="IAsyncEnumerable{PingResponse}"/></returns>
     public async IAsyncEnumerable<ProbingResponse> Start()
     {
-        while (true)
+        using var timer = new PeriodicTimer(Delay);
+        while (await AwaitNextTick(timer, _cancellationToken).ConfigureAwait(false))
         {
             PingReply reply;
             try
             {
-                reply = await _pingSender
-                .SendPingAsync(_options.IPAddress, _options.Timeout, options: _pingOptions, cancellationToken: _cancellationToken)
+                reply = await _pingSender.SendPingAsync(address: _options.IPAddress,
+                                                        timeout: _options.Timeout,
+                                                        options: _pingOptions,
+                                                        cancellationToken: _cancellationToken)
                 .ConfigureAwait(false);
             }
             catch (Exception e) when (e is TaskCanceledException or OperationCanceledException)
@@ -36,20 +40,16 @@ public sealed class PingInstrument(PingInstrumentOptions options, CancellationTo
                 destination: _options.IPAddress.ToString(),
                 ttl: reply.Options!.Ttl);
         }
-    }
 
-    private void Dispose(bool disposing)
+        static async Task<bool> AwaitNextTick(PeriodicTimer timer, CancellationToken cancellationToken)
     {
-        if (!_disposedValue)
+            try
         {
-            if (disposing)
-            {
-                _pingSender?.Dispose();
+                return await timer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(false);
             }
-
-            // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-            // TODO: set large fields to null
-            _disposedValue = true;
+            catch (OperationCanceledException)
+            {
+                return false;
         }
     }
 
