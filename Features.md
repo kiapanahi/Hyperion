@@ -7,19 +7,24 @@
 [💡 TBD]
 
 * #### ICMP Ping
-    [💡 TBD]
+  - Ping instrument
+  - Logging (`EventSource` or `ActivitySource` logging)
+  - `PingOptions` with default values:
+    - IP address
+    - Timeout
+    - Payload
 
 * #### HTTP Ping
-    [💡 TBD]
+  [💡 TBD]
 
 * #### DNS Lookup
-    [💡 TBD]
+  [💡 TBD]
 
 ### Passive
 [💡 TBD]
 
 * #### Network speed monitor
-    [💡 TBD]
+  [💡 TBD]
 
 ## Administration
 [💡 TBD]
