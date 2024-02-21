@@ -12,14 +12,12 @@ var table = new Table()
 
 using var cts = new CancellationTokenSource();
 
-Console.CancelKeyPress += Console_CancelKeyPress;
+Console.CancelKeyPress += (sender, e) => cts.Cancel();
 
-void Console_CancelKeyPress(object? sender, ConsoleCancelEventArgs e)
-{
-    cts.Cancel();
-}
+using var pinger = new PingInstrument(
+    options: new PingInstrumentOptions(IPAddress.Parse("8.8.8.8")),
+    cancellationToken: cts.Token);
 
-using var pinger = new PingInstrument(new PingInstrumentOptions(IPAddress.Parse("8.8.8.8")), cts.Token);
 await AnsiConsole.Live(table)
     .StartAsync(async ctx =>
     {
