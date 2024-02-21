@@ -23,7 +23,7 @@ await AnsiConsole.Live(table)
     {
         await foreach (var item in pinger.Start())
         {
-            table.AddRow(new Markup($"{item.Duration}"));
+            table.AddRow(new Markup(item.Report()));
             ctx.Refresh();
         }
     });
