@@ -34,7 +34,6 @@ public sealed class HttpInstrument : MonitoringInstrumentBase
             using var payload = new HttpRequestMessage(_options.Method, _options.Target);
             var statusCode = string.Empty;
             string error = string.Empty;
-#pragma warning disable CA1031 // Do not catch general exception types
             try
             {
                 var response = await StaticClient
@@ -53,7 +52,6 @@ public sealed class HttpInstrument : MonitoringInstrumentBase
                 error = e.ToString();
                 statusCode = "ERROR!";
             }
-#pragma warning restore CA1031 // Do not catch general exception types
 
             var duration = sw.Elapsed;
             sw.Reset();
