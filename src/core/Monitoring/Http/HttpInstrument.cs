@@ -12,7 +12,7 @@ public sealed class HttpInstrument : MonitoringInstrumentBase
 
     private static readonly HttpClient StaticClient = new(new SocketsHttpHandler
     {
-        PooledConnectionLifetime = TimeSpan.FromSeconds(15)
+        PooledConnectionLifetime = TimeSpan.FromMinutes(20)
     });
 
     public HttpInstrument(HttpInstrumentOptions options, CancellationToken cancellationToken)
@@ -33,6 +33,8 @@ public sealed class HttpInstrument : MonitoringInstrumentBase
             sw.Start();
             using var payload = new HttpRequestMessage(_options.Method, _options.Target);
             var statusCode = string.Empty;
+            string error = string.Empty;
+#pragma warning disable CA1031 // Do not catch general exception types
             try
             {
                 var response = await StaticClient
@@ -41,15 +43,24 @@ public sealed class HttpInstrument : MonitoringInstrumentBase
                     .ConfigureAwait(false);
                 statusCode = response.StatusCode.ToString();
             }
-            catch (HttpRequestException)
+            catch (HttpRequestException e)
             {
+                error = e.ToString();
                 statusCode = HostNotFound;
             }
+            catch (Exception e)
+            {
+                error = e.ToString();
+                statusCode = "ERROR!";
+            }
+#pragma warning restore CA1031 // Do not catch general exception types
 
             var duration = sw.Elapsed;
             sw.Reset();
 
-            yield return new HttpResponse(duration, _options.Target, statusCode);
+            yield return string.IsNullOrEmpty(error)
+                ? new HttpResponse(duration, _options.Target, statusCode)
+                : new HttpResponse(duration, error);
         }
 
         static async Task<bool> AwaitNextTick(PeriodicTimer timer, CancellationToken cancellationToken)
