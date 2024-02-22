@@ -10,17 +10,17 @@ public sealed class HttpInstrument : MonitoringInstrumentBase
     private readonly HttpInstrumentOptions _options;
     private readonly CancellationToken _cancellationToken;
 
-    private readonly HttpClient _httpClient;
+    private static readonly HttpClient StaticClient = new(new SocketsHttpHandler
+    {
+        PooledConnectionLifetime = TimeSpan.FromSeconds(15)
+    });
 
-    public HttpInstrument(HttpInstrumentOptions options, IHttpClientFactory httpClientFactory, CancellationToken cancellationToken)
+    public HttpInstrument(HttpInstrumentOptions options, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(nameof(options));
-        ArgumentNullException.ThrowIfNull(nameof(httpClientFactory));
 
         _options = options;
         _cancellationToken = cancellationToken;
-        _httpClient = httpClientFactory.CreateClient();
-        _httpClient.Timeout = _options.Timeout;
     }
 
     public override async IAsyncEnumerable<ProbingResponse> Start()
@@ -35,7 +35,7 @@ public sealed class HttpInstrument : MonitoringInstrumentBase
             var statusCode = string.Empty;
             try
             {
-                var response = await _httpClient
+                var response = await StaticClient
                     .SendAsync(payload, HttpCompletionOption.ResponseHeadersRead, _cancellationToken)
                     .WaitAsync(_options.Timeout, _cancellationToken)
                     .ConfigureAwait(false);
@@ -69,6 +69,6 @@ public sealed class HttpInstrument : MonitoringInstrumentBase
 
     protected override void DisposeCore()
     {
-        _httpClient?.Dispose();
+        StaticClient?.Dispose();
     }
 }
