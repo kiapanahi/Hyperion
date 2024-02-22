@@ -12,7 +12,7 @@ public sealed class HttpInstrumentOptionsTests
 
         sut.Target.Should().Be(Uri);
         sut.Method.Should().Be(HttpMethod.Get);
-        sut.Timeout.Should().Be(TimeSpan.FromSeconds(2));
+        sut.Timeout.Should().Be(TimeSpan.FromSeconds(5));
     }
 
     [Fact]
