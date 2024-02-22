@@ -14,7 +14,7 @@ public sealed class HttpInstrumentOptions
     public HttpInstrumentOptions(Uri target, TimeSpan? timeout, HttpMethod? method)
     {
         Target = target;
-        Timeout = timeout ?? TimeSpan.FromSeconds(2);
+        Timeout = timeout ?? TimeSpan.FromSeconds(5);
         Method = method ?? HttpMethod.Head;
     }
 }
