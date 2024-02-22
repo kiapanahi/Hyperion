@@ -2,19 +2,21 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-    <NoWarn>$(NoWarn); CA2007</NoWarn>
+        <AssemblyName>hyperion</AssemblyName>
+        <RootNamespace>Hyperion.Cli</RootNamespace>
+        <NoWarn>$(NoWarn); CA2007</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Spectre.Console.Analyzer">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
-      <PackageReference Include="Spectre.Console.Cli" />
+        <PackageReference Include="Spectre.Console.Analyzer">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Spectre.Console.Cli" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\core\Core.csproj" />
+        <ProjectReference Include="..\core\Core.csproj" />
     </ItemGroup>
 
 </Project>
