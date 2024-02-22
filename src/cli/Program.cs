@@ -3,6 +3,7 @@ using System.Threading.Channels;
 
 using Hyperion.Core.Monitoring.Http;
 using Hyperion.Core.Monitoring.Ping;
+using Hyperion.Core.Versioning;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -120,6 +121,7 @@ static void PrintHeader()
     AnsiConsole.Write(new FigletText("Hyperion")
         .Justify(Justify.Left)
         .Color(Color.Cyan3));
+    AnsiConsole.WriteLine(VersionProvider.Version);
 }
 
 readonly record struct ColumnOutput(string Column, string Text);
