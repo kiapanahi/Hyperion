@@ -11,13 +11,13 @@ public sealed class PingInstrumentOptionsTests
     public void DefaultTimeout()
     {
         var sut = new PingInstrumentOptions(Ip);
-        sut.Timeout.Should().Be(TimeSpan.FromSeconds(30));
+        sut.Timeout.Should().Be(TimeSpan.FromSeconds(1));
     }
 
     [Fact]
     public void CustomTimeout()
     {
-        var sut = new PingInstrumentOptions(Ip, TimeSpan.FromSeconds(1));
-        sut.Timeout.Should().Be(TimeSpan.FromSeconds(1));
+        var sut = new PingInstrumentOptions(Ip, TimeSpan.FromSeconds(12));
+        sut.Timeout.Should().Be(TimeSpan.FromSeconds(12));
     }
 }
