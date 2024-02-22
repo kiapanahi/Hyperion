@@ -22,7 +22,8 @@ public sealed class PingInstrument(PingInstrumentOptions options, CancellationTo
         using var timer = new PeriodicTimer(Delay);
         while (await AwaitNextTick(timer, _cancellationToken).ConfigureAwait(false))
         {
-            PingReply reply;
+            PingReply? reply = null;
+            var error = string.Empty;
             try
             {
                 reply = await _pingSender.SendPingAsync(
@@ -33,15 +34,19 @@ public sealed class PingInstrument(PingInstrumentOptions options, CancellationTo
                     .WaitAsync(_options.Timeout)
                     .ConfigureAwait(false);
             }
-            catch (Exception e) when (e is TaskCanceledException or OperationCanceledException)
+            catch (Exception e)
             {
-                break;
+                error = e.ToString();
             }
-            yield return new PingResponse(
-                duration: TimeSpan.FromMilliseconds(reply!.RoundtripTime),
-                status: reply.Status.ToString(),
-                destination: _options.IPAddress.ToString(),
-                ttl: reply.Options?.Ttl ?? -1);
+
+            yield return
+                string.IsNullOrEmpty(error)
+                ? new PingResponse(
+                    duration: TimeSpan.FromMilliseconds(reply!.RoundtripTime),
+                    status: reply.Status.ToString(),
+                    destination: _options.IPAddress.ToString(),
+                    ttl: reply.Options?.Ttl ?? -1)
+                : new PingResponse(error);
         }
 
         static async Task<bool> AwaitNextTick(PeriodicTimer timer, CancellationToken cancellationToken)
