@@ -5,8 +5,6 @@ using Hyperion.Core.Monitoring.Http;
 using Hyperion.Core.Monitoring.Ping;
 using Hyperion.Core.Versioning;
 
-using Microsoft.Extensions.DependencyInjection;
-
 PrintHeader();
 
 var table = new Table()
@@ -16,10 +14,6 @@ var table = new Table()
     .AddColumn("Ping")
     .AddColumn("Http")
     .AddEmptyRow();
-
-var serviceProvider = new ServiceCollection()
-    .AddHttpClient()
-    .BuildServiceProvider();
 
 using var cts = new CancellationTokenSource();
 Console.CancelKeyPress += (sender, e) => cts.Cancel();
@@ -33,7 +27,7 @@ Channel<ColumnOutput> notificationChannel = Channel.CreateUnbounded<ColumnOutput
 });
 
 
-var httpTask = StartHttpProbe(notificationChannel, serviceProvider.GetRequiredService<IHttpClientFactory>(), cts.Token);
+var httpTask = StartHttpProbe(notificationChannel, cts.Token);
 var pingTask = StartPingProbe(notificationChannel, cts.Token);
 
 await AnsiConsole.Live(table)
@@ -75,7 +69,7 @@ await AnsiConsole.Live(table)
         }
     });
 
-static Task StartHttpProbe(Channel<ColumnOutput> notificationChannel, IHttpClientFactory httpClientFactory, CancellationToken cancellationToken)
+static Task StartHttpProbe(Channel<ColumnOutput> notificationChannel, CancellationToken cancellationToken)
 {
     const string header = "Http";
 
@@ -83,7 +77,6 @@ static Task StartHttpProbe(Channel<ColumnOutput> notificationChannel, IHttpClien
     {
         using var httpProbe = new HttpInstrument(
             options: new HttpInstrumentOptions(new Uri("https://example.com/"), null, null),
-            httpClientFactory: httpClientFactory,
             cancellationToken: cancellationToken);
 
         await foreach (var item in httpProbe.Start())
