@@ -4,6 +4,6 @@ public static class VersionProvider
     public static string Version { get; }
     static VersionProvider()
     {
-        Version = typeof(VersionProvider).Assembly.GetName().Version?.ToString(4) ?? "0.0.0.0";
+        Version = typeof(VersionProvider).Assembly.GetName().Version?.ToString(3) ?? "0.0.0";
     }
 }

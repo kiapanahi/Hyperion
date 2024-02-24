@@ -3,6 +3,7 @@
         <AssemblyName>hyperion.core</AssemblyName>
         <RootNamespace>Hyperion.Core</RootNamespace>
         <NoWarn>$(NoWarn); CA1031</NoWarn>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
     <ItemGroup>
       <PackageReference Include="Microsoft.Extensions.Http" />
