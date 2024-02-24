@@ -186,3 +186,4 @@ orleans.codegen.cs
 
 # Live Unit Testing config files
 *.lutconfig
+/src/cli/Properties/PublishProfiles
