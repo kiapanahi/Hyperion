@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
+using System.Net;
 
 namespace Hyperion.Core.Monitoring.Http;
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "<Pending>")]
 public sealed class HttpInstrument : MonitoringInstrumentBase
 {
     private const string HostNotFound = @"Host not found";
@@ -10,10 +10,14 @@ public sealed class HttpInstrument : MonitoringInstrumentBase
     private readonly HttpInstrumentOptions _options;
     private readonly CancellationToken _cancellationToken;
 
-    private static readonly HttpClient StaticClient = new(new SocketsHttpHandler
+    private static readonly SocketsHttpHandler Handler = new()
     {
         PooledConnectionLifetime = TimeSpan.FromMinutes(20)
-    });
+    };
+    private static readonly HttpClient StaticClient = new(Handler)
+    {
+        DefaultRequestVersion = HttpVersion.Version30
+    };
 
     public HttpInstrument(HttpInstrumentOptions options, CancellationToken cancellationToken)
     {
@@ -73,8 +77,6 @@ public sealed class HttpInstrument : MonitoringInstrumentBase
             }
         }
     }
-
-
 
     protected override void DisposeCore()
     {
